@@ -79,7 +79,79 @@ class TinySearchEngine implements TinySearchEngineBase {
         System.out.println("Total number of words: " + totalWords); 
     }
 
-    public String parse(String query) {
+    public List<Document> search(String query) {
+        try {
+        String[] q = query.split("\\s+"); 
+        int size = q.length; 
+        int orderby = query.lastIndexOf("orderby");  
+        boolean order;
+        String p; 
+
+        if (orderby > 0 && "orderby".equals(q[size -3])) {
+            p = parse(query.substring(0,orderby)); 
+            order = true; 
+        }
+        else {
+            p = parse(query); 
+            order = false; 
+        }
+
+        WordContainer result = wordIndex.get(p);  
+        if (result == null) {
+            result = new WordContainer(); 
+        }
+        
+
+        ArrayList<Document> results = result.get();     
+        
+        if (order) {
+            String arg = q[size -2]; 
+            boolean asc = true; 
+
+            if ("desc".equals(q[size - 1])) {
+                asc = false;
+            }
+            Comparator cmp = new DocComparator(arg, result, asc);  
+            Collections.sort(results, cmp); 
+        }
+        
+        return results;
+        } 
+        catch (NoSuchElementException e) {
+            return null; 
+        }
+
+    }
+
+
+    public String infix(String arg) {
+        try{
+            return parse(arg);
+        }
+        catch (NoSuchElementException e) {
+            return "INVALID ARGUMENT(s)"; 
+        }
+    }
+
+    /* HELPER FUNCTION parse: 
+     *
+     * Parses the string in prefix notation, returns infix notation. 
+     * 
+     * SIDE EFFECTS: 
+     * Caches subqueries, and saves the resulting documents in the hash table
+     * with the return string (in infix) as key. 
+     * 
+     * Ex: - the | for on -> (the - (for | on))
+     *
+     * Before evaluating a subquery, it also checks if it has been cached. It
+     * takes commutability into account, eg: "| for on" == "| on for". 
+     *
+     * Since all subqueries are cached (including the main query), the returned
+     * string will be the HashMap key for the evaluated answer of a query.
+     *
+     *
+     */
+    private String parse(String query) {
         String[] q = query.split("\\s+"); 
         WordContainer result; 
         Deque<String> stack = new ArrayDeque<String>();
@@ -167,60 +239,6 @@ class TinySearchEngine implements TinySearchEngineBase {
 
         return stack.removeFirst();
      
-    }
-
-    public List<Document> search(String query) {
-        try {
-        String[] q = query.split("\\s+"); 
-        int size = q.length; 
-        int orderby = query.lastIndexOf("orderby");  
-        boolean order;
-        String p; 
-
-        if (orderby > 0 && "orderby".equals(q[size -3])) {
-            p = parse(query.substring(0,orderby)); 
-            order = true; 
-        }
-        else {
-            p = parse(query); 
-            order = false; 
-        }
-
-        WordContainer result = wordIndex.get(p);  
-        if (result == null) {
-            result = new WordContainer(); 
-        }
-        
-
-        ArrayList<Document> results = result.get();     
-        
-        if (order) {
-            String arg = q[size -2]; 
-            boolean asc = true; 
-
-            if ("desc".equals(q[size - 1])) {
-                asc = false;
-            }
-            Comparator cmp = new DocComparator(arg, result, asc);  
-            Collections.sort(results, cmp); 
-        }
-        
-        return results;
-        } 
-        catch (NoSuchElementException e) {
-            return null; 
-        }
-
-    }
-
-
-    public String infix(String arg) {
-        try{
-            return parse(arg);
-        }
-        catch (NoSuchElementException e) {
-            return "INVALID ARGUMENT(s)"; 
-        }
     }
 
 

@@ -302,9 +302,17 @@ class TinySearchEngine implements TinySearchEngineBase {
 
     /* HELPER CLASS WordContainer:
      *
-     * Hold a map of DocContainers (ie, all documents that contain the word),
-     * as well as the name of the associated word. 
+     * Holds a list of documents associated with a query. 
+     * Also holds a HashMap of Doubles (representing relevance) and
+     * a HashMap of Integers (representing popularity), with the documents
+     * as key. 
      *
+     * The actual relevance for each documents is calculated when getRelevance()
+     * (or similar) is first called, and no sooner.  
+     *
+     * Importantly, WordContainer holds methods to compute unions, intersections and 
+     * differences with other WordContainers. The ouput of these methods are new 
+     * WordContainer instances. 
      *
      *
      */

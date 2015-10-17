@@ -4,7 +4,7 @@ A simple search engine, made as a project for the course Algorithms and Data str
 Search for a word, and it will return a list of documents where they occur. 
 
 
-#FAQ
+##FAQ
 > How do I run it? 
 
 An executable jar file can be found under *target*. 

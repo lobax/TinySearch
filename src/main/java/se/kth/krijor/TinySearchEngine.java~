@@ -1,0 +1,331 @@
+	
+
+    /*
+     * TinySearchEngine
+     * By Kristian Alvarez Jörgensen
+     * No Rights Reserved
+     *
+     */
+     
+    package se.kth.krijor;
+    import java.util.Comparator;
+    import java.util.Collections;
+    import java.util.ArrayList;
+    import java.util.List;
+    import java.util.ListIterator;
+    import se.kth.id1020.util.*;
+    import se.kth.id1020.*;
+     
+    class TinySearchEngine implements TinySearchEngineBase {
+        List<Query> dbase = new ArrayList<Query>();
+     
+        public void insert (Word word, Attributes attr) {
+            Query term  = new Query(word, attr);
+     
+            int index = Collections.binarySearch(dbase,term);
+           
+            if (index < 0)
+                dbase.add(~index,term);
+            else {
+                term  = dbase.get(index);
+                Docs doc  = new Docs(word,attr);
+                index = Collections.binarySearch(term.dcs,doc);
+     
+                if (index < 0)
+                    term.add(doc);
+                else {
+                    term.dcs.get(index).add(word, attr);
+                    doc = null;
+                }
+     
+     
+            }
+           
+        }
+     
+        public List<Document> search(String query) {
+            String[] input = query.split("\\s+");
+            int size = input.length;
+            List<Docs> list = new ArrayList<Docs>();
+            Comparator<Docs> cmp;
+     
+            if ( size - 3 > 0 && input[size-3].equals("orderby")){
+               
+                boolean asc = true;
+                if (input[size-1].equals("asc"))
+                    asc = true;
+     
+                cmp = new DocsComparator(input[size-2], asc);
+            }
+     
+            else {
+                cmp = new DocsComparator("popularity", true);
+            }
+     
+     
+     
+            boolean first = true;
+            for (String s : input) {
+                if (s.equals("orderby"))
+                    break;
+                /*
+                if (first) {
+                    List<Docs= getQuery(s);
+                    if (list == null)
+                        continue;
+                    Collections.sort(list,cmp); //Sort
+                    first = false;
+                }
+                */
+     
+                else {
+                    List<Docs> tmp = getQuery(s);
+                    if (tmp == null)
+                        continue;
+                    union(list,tmp,cmp);
+                }
+            }
+            if (list == null)
+                return null;
+            List<Document> dList = new ArrayList<Document>();
+            for (Docs doc : list) {
+                dList.add(doc.document);
+            }
+            return dList;
+     
+           
+       }
+       
+        /*
+         * METHOD union
+         *
+         * Takes a (sorted according to Comparator cmp) List l1, and unions
+         * it with another List l2 (does not have to be sorted).
+         *
+         * The unioned result saved in List l1.
+         *
+         *
+         *
+         */
+        private void union(List<Docs> l1, List<Docs> l2, Comparator <Docs> cmp) {
+            for (Docs doc: l2) {
+                int index = Collections.binarySearch(l1,doc,cmp);
+                if ( index < 0)
+                    l1.add(~index,doc);
+            }
+     
+        }
+     
+        private List<Docs> getQuery(String str) {
+            Query qry = new Query(str);
+            int index = Collections.binarySearch(dbase,qry);
+            qry = null; //Garbage
+            if ( index < 0)
+                return null;
+            else {
+                return dbase.get(index).get();
+     
+            }
+        }
+     
+     
+        private class DocsComparator implements Comparator <Docs> {
+            boolean asc;
+            String arg;
+            public DocsComparator(String arg, boolean asc) {
+                this.arg = arg;
+                this.asc = asc;
+            }
+     
+            private int popularity(Docs doc1, Docs doc2) {
+                int diff = doc1.popularity - doc2.popularity;
+                diff = asc ? diff : -diff;
+     
+                if (diff < 0)
+                    return -1;
+                else if (diff > 0)
+                    return 1;
+                else
+                    return 0;
+     
+            }
+     
+            private int occurrence(Docs doc1, Docs doc2) {
+                int diff = doc1.occurrence - doc2.occurrence;
+                diff = asc ? diff : -diff;
+     
+                if (diff < 0)
+                    return -1;
+                else if (diff > 0)
+                    return 1;
+                else
+                    return 0;
+            }
+            private int relevance(Docs doc1, Docs doc2) {
+                int diff = doc1.hits() - doc2.hits();
+                diff = asc ? diff : -diff;
+     
+                if (doc1.docName.equals(doc2.docName))
+                    return 0;
+                if (diff > 0)
+                    return 1;
+                else if (diff < 0)
+                    return -1;
+                else {
+                        return 1;
+                }
+            }
+            public int compare(Docs doc1, Docs doc2) {
+                if (arg.equals("popularity"))
+                    return popularity(doc1,doc2);
+                else if (arg.equals("relevance"))
+                    return relevance(doc1,doc2);
+                else if (arg.equals("occurrence"))
+                    return occurrence(doc1,doc2);
+                else
+                    return 0;
+            }
+               
+           
+        }
+     
+     
+     
+        /*
+         * INNER CLASS Query:
+         *
+         * Holds Query (in an array-list) of equal name.  
+         * The String *name* contains the word all items share.
+         *
+         */
+       
+        private class Docs implements Comparable<Docs> {
+            public String docName;
+            public int popularity;
+            public int occurrence;
+            public Document document;
+            public List<Item> itms = new ArrayList<Item>();
+     
+            public Docs(Word word, Attributes attr) {
+                Item itm = new Item(word, attr);
+                this.document = itm.getAttr().document;
+                this.docName = itm.getAttr().document.name;
+                this.popularity = itm.getAttr().document.popularity;
+                this.occurrence = itm.getAttr().occurrence;
+                itms.add(itm);
+            }
+     
+            public Docs(Item itm) {
+                this.docName = itm.getAttr().document.name;
+                this.popularity = itm.getAttr().document.popularity;
+                this.occurrence = itm.getAttr().occurrence;
+     
+                itms.add(itm);
+            }
+           
+            //Returns relevance
+            public int hits() {
+                return itms.size();
+            }
+     
+            public void add(Item itm) {
+                if (itm.getAttr().occurrence < this.occurrence)
+                    this.occurrence = itm.getAttr().occurrence;
+                itms.add(itm);
+            }
+            public void add(Word word, Attributes attr) {
+                if (attr.occurrence < this.occurrence)
+                    this.occurrence = attr.occurrence;
+                itms.add(new Item(word, attr));
+            }
+     
+            public int compareTo(Docs doc) {
+                return this.docName.compareTo(doc.docName);
+            }
+     
+        }
+        private class Query implements Comparable<Query> {
+            public String name;
+            public List<Docs> dcs = new ArrayList<Docs>();
+     
+            public Query(Word word, Attributes attr) {
+                this.name = word.word;
+                Docs doc = new Docs(word, attr);
+                dcs.add(doc);
+            }
+     
+            public Query(String name) {
+                this.name = name;
+            }
+     
+            public void add(Docs doc) {
+                dcs.add(doc);
+            }
+           
+            /*
+             * METHOD get():
+             *
+             * Returns the ArrayList of Docs(s)
+             *
+             * NOTE: This creates a shallow copy!
+             */
+     
+            public ArrayList<Docs> get() {
+                return new ArrayList<Docs>(dcs);
+            }
+     
+            public int compareTo(Query qry) {
+                return this.name.compareTo(qry.name);
+            }
+     
+            public boolean less(Query qry) {
+                return compareTo(qry) < 0;
+            }
+     
+            public boolean equals(Query qry) {
+                return compareTo(qry) == 0;
+            }
+     
+     
+        }
+     
+        /*
+         * INNER CLASS Item:
+         * Holds a Word and it's corresponding Attribute
+         *
+         *
+         */
+     
+        private class Item {
+            Word word;
+            Attributes attr;
+            public Item(Word word, Attributes attr) {
+                this.word = word;
+                this.attr = attr;
+            }
+     
+            public Word getWord() {
+                return this.word;
+            }
+     
+            public Attributes getAttr() {
+                return this.attr;
+            }
+     
+            public int compareTo(Item itm) {
+                return word.word.compareTo(itm.getWord().word);
+            }
+     
+            public boolean less(Item itm) {
+                return compareTo(itm) < 0;
+            }
+     
+            public boolean equals(Item itm) {
+                return compareTo(itm) == 0;
+            }
+        }
+     
+     
+    }
+
+

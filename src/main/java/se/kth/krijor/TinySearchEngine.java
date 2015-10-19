@@ -65,10 +65,6 @@ class TinySearchEngine implements TinySearchEngineBase {
         for(Word word : sentence.getWords()) {
             totalWords++;
             insert(word,attr); 
-//            if (word.word.matches("^\\w+$")) {
-//                insert(word, attr); 
-//                numberOfWords++; 
-//            }
         }
     }
  

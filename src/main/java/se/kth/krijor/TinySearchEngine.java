@@ -246,9 +246,9 @@ class TinySearchEngine implements TinySearchEngineBase {
     /*
      * HELPER CLASS: DocsComparator
      *
-     * A comparator for various sortings of documents. 
-     *
-     *
+     * An extendable comparator that allows the sorting 
+     * of documents by popularity or relevance in ascending
+     * or descending form. 
      *
      */
     private class DocComparator implements Comparator <Document> {

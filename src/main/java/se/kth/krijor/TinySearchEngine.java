@@ -64,10 +64,11 @@ class TinySearchEngine implements TinySearchEngineBase {
     public void insert (Sentence sentence, Attributes attr) {
         for(Word word : sentence.getWords()) {
             totalWords++;
-            if (word.word.matches("^\\w+$")) {
-                insert(word, attr); 
-                numberOfWords++; 
-            }
+            insert(word,attr); 
+//            if (word.word.matches("^\\w+$")) {
+//                insert(word, attr); 
+//                numberOfWords++; 
+//            }
         }
     }
  
@@ -114,7 +115,7 @@ class TinySearchEngine implements TinySearchEngineBase {
             Comparator cmp = new DocComparator(arg, result, asc);  
             Collections.sort(results, cmp); 
         }
-        
+
         return results;
         } 
         catch (NoSuchElementException e) {
@@ -126,7 +127,27 @@ class TinySearchEngine implements TinySearchEngineBase {
 
     public String infix(String arg) {
         try{
-            return parse(arg);
+            String[] q = arg.split("\\s+"); 
+            int size = q.length; 
+            int orderby = arg.lastIndexOf("orderby");  
+            boolean order;
+            String p; 
+
+            if (orderby > 0 && "orderby".equals(q[size -3])) {
+                p = parse(arg.substring(0,orderby)); 
+                order = true; 
+            }
+            else {
+                p = parse(arg); 
+                order = false; 
+            }
+
+            if (order) {
+                p = "Query: " + p + " " + arg.substring(orderby, arg.length()).toUpperCase(); 
+            }
+
+            return p; 
+
         }
         catch (NoSuchElementException e) {
             return "INVALID ARGUMENT(s)"; 
@@ -276,7 +297,7 @@ class TinySearchEngine implements TinySearchEngineBase {
         }
  
         private int relevance(Document doc1, Document doc2) {
-            int diff = wrd.relevance.get(doc1).compareTo(wrd.relevance.get(doc2));
+            int diff = wrd.getRelevance(doc1).compareTo(wrd.getRelevance(doc2));
             diff = asc ? diff : -diff;
  
             if (diff > 0)
@@ -399,7 +420,8 @@ class TinySearchEngine implements TinySearchEngineBase {
                 double docsSize = documents.size(); 
                 double invTermFreq = Math.log10(totalSize/docsSize); 
                 double res = termFreq * invTermFreq; 
-
+                //System.out.print("Relevance for " + doc.name + " set to: " + res);  //DEBUG
+                //System.out.println(" - docTerm" + docTerm + " docCount " + relevance.get(doc)); //DEBUG 
                 relevance.put(doc, res); 
             }
 
@@ -436,7 +458,7 @@ class TinySearchEngine implements TinySearchEngineBase {
         public WordContainer difference(WordContainer wrd) {
             WordContainer result = new WordContainer();
             if (wrd == null) {
-                return result; 
+                wrd = new WordContainer(); 
             }
 
             for (Document doc : this.get()) {
@@ -449,6 +471,10 @@ class TinySearchEngine implements TinySearchEngineBase {
             
         }
         public WordContainer union(WordContainer wrd) {
+            if (!initiated) {
+                this.setRelevance(); 
+            }
+
             WordContainer result = new WordContainer(this); 
             if (wrd == null) {
                 wrd = new WordContainer(); 

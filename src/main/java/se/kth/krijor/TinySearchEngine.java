@@ -1,33 +1,27 @@
-/*
- *--------------------------
- *- TinySearchEngine v 2.a -
- *--------------------------
- *- Kristian Alvarez 2015  -
- *--------------------------
- *-   No rights reserved   -
- *--------------------------
- *
- *
- *
- *
- *
- *
- *
- */
-
 package se.kth.krijor;
 import java.util.*;
 import se.kth.id1020.util.*;
 import se.kth.id1020.*;
 import java.lang.Math;
 
+/**
+ * <h1>TinySearchEngine</h1>
+ * A simple search engine, made for the course
+ * Algorithms and Data structures (ID1020).
+ * <p>
+ *
+ * @author Kristian Alvarez Jörgensen
+ * @version 2.0
+ * @see 
+ *
+ *
+ */
 class TinySearchEngine implements TinySearchEngineBase {
+
     HashMap<String, WordContainer> wordIndex; 
     HashMap<Document, Integer> docWordCount;
 
 
-    int numberOfWords; 
-    int totalWords; 
     public void preInserts() {
         wordIndex = new HashMap<String, WordContainer>(1000000); 
         docWordCount = new HashMap<Document, Integer>(1000); 

@@ -14,7 +14,7 @@ The languange supports three basic operations:
 
 The operations and the search terms need to be typed in prefix notation. 
 
-For example: If you wish to search for all documents that contain the both the words *delicious* and *vegetable*, you should type "*+ delicious vegetable*". If you wish find all documents that countain the word *delicious*, but not *bacon*, you typ "*- delicious bacon*".  
+For example: If you wish to search for all documents that contain the both the words *delicious* and *vegetable*, you should type "*+ delicious vegetable*". If you wish find all documents that countain the word *delicious*, but not *bacon*, you typ "*- delicious bacon*". You can combine these two, and search for all documents that contain both the words *delicious* and *vegetable*, but not the word *bacon*, by typing "*- + delicious vegetable bacon*"
 
 The resulting list of documents can be ordered in various ways, by appending "*orderby property ordering*" to the end of the query. These are the supported orderings: 
 

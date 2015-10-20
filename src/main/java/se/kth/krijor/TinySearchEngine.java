@@ -9,11 +9,12 @@ import java.lang.Math;
  * A simple search engine, made for the course
  * Algorithms and Data structures (ID1020).
  * <p>
+ * Implements {@link TinySearchEngineBase}. 
+ * 
  *
  * @author Kristian Alvarez Jörgensen
  * @version 2.0
- * @see 
- *
+ * @see TinySearchEngineBase
  *
  */
 class TinySearchEngine implements TinySearchEngineBase {
@@ -27,6 +28,13 @@ class TinySearchEngine implements TinySearchEngineBase {
         docWordCount = new HashMap<Document, Integer>(1000); 
     }
 
+    /**
+     * Adds a {@link Word} and its corresponding {@link Attributes} to the Index. 
+     *
+     * @param word the word added to the index.
+     * @param attr the attributes to the word. 
+     *
+     */
     public void insert (Word word, Attributes attr) {
         String wordName = word.word;
         Document doc = attr.document; 
@@ -55,6 +63,15 @@ class TinySearchEngine implements TinySearchEngineBase {
        
     }  
 
+    /** 
+     * Adds a {@link Sentence} and it's correspong {@link Attributes} to the Index. 
+     *
+     * @param sentence a list of <i>Word</i>s added to the index. 
+     * @param attr the Attributes to the words. 
+     *
+     *
+     */
+
     public void insert (Sentence sentence, Attributes attr) {
         for(Word word : sentence.getWords()) {
             totalWords++;
@@ -70,6 +87,15 @@ class TinySearchEngine implements TinySearchEngineBase {
         System.out.println("Total number of words: " + totalWords); 
     }
 
+    /**
+     * Searches the index and returns a list documents that match the query.
+     * The query needs to be in prefix notion - {@link #infix(String) infix}
+     * can be used to understand how a prefix query is evaluated in infix.  
+     * 
+     * @param query a String containing a search query (in prefix notation).
+     * @return A list of documents matching the query.
+     * @see <a href="https://github.com/lobax/TinySearch/blob/master/README.md#query-syntax">README.md</a>
+     */
     public List<Document> search(String query) {
         try {
         String[] q = query.split("\\s+"); 
@@ -115,6 +141,12 @@ class TinySearchEngine implements TinySearchEngineBase {
     }
 
 
+    /**
+     * Takes a query in prefix notation and returns its infix represention.
+     *
+     * @param arg - an argument in prefix notation.
+     * @return argument in infix notation. 
+     */
     public String infix(String arg) {
         try{
             String[] q = arg.split("\\s+"); 
@@ -144,23 +176,22 @@ class TinySearchEngine implements TinySearchEngineBase {
         }
     }
 
-    /* HELPER FUNCTION parse: 
-     *
+    /**  
      * Parses the string in prefix notation, returns infix notation. 
-     * 
-     * SIDE EFFECTS: 
+     * <p>
+     * SIDE EFFECTS:<br />
      * Caches subqueries, and saves the resulting documents in the hash table
      * with the return string (in infix) as key. 
      * 
-     * Ex: - the | for on -> (the - (for | on))
+     * <br />Ex: <tt>- the | for on</tt> -> <tt>(the - (for | on))</tt>
      *
-     * Before evaluating a subquery, it also checks if it has been cached. It
-     * takes commutability into account, eg: "| for on" == "| on for". 
+     * <br />Before evaluating a subquery, it also checks if it has been cached. It
+     * takes commutability into account, eg: <tt>| for on</tt> == <tt>| on for</tt>. 
      *
-     * Since all subqueries are cached (including the main query), the returned
+     * <br />Since all subqueries are cached (including the main query), the returned
      * string will be the HashMap key for the evaluated answer of a query.
-     *
-     *
+     * @param query - query in prefix notaion
+     * @return a infix representation of query
      */
     private String parse(String query) {
         String[] q = query.split("\\s+"); 

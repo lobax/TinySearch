@@ -95,41 +95,41 @@ class TinySearchEngine implements TinySearchEngineBase {
      */
     public List<Document> search(String query) {
         try {
-        String[] q = query.split("\\s+"); 
-        int size = q.length; 
-        int orderby = query.lastIndexOf("orderby");  
-        boolean order;
-        String p; 
+            String[] q = query.split("\\s+"); 
+            int size = q.length; 
+            int orderby = query.lastIndexOf("orderby");  
+            boolean order;
+            String p; 
 
-        if (orderby > 0 && "orderby".equals(q[size -3])) {
-            p = parse(query.substring(0,orderby)); 
-            order = true; 
-        }
-        else {
-            p = parse(query); 
-            order = false; 
-        }
-
-        WordContainer result = wordIndex.get(p);  
-        if (result == null) {
-            result = new WordContainer(); 
-        }
-        
-
-        ArrayList<Document> results = result.get();     
-        
-        if (order) {
-            String arg = q[size -2]; 
-            boolean asc = true; 
-
-            if ("desc".equals(q[size - 1])) {
-                asc = false;
+            if (orderby > 0 && "orderby".equals(q[size -3])) {
+                p = parse(query.substring(0,orderby)); 
+                order = true; 
             }
-            Comparator cmp = new DocComparator(arg, result, asc);  
-            Collections.sort(results, cmp); 
-        }
+            else {
+                p = parse(query); 
+                order = false; 
+            }
 
-        return results;
+            WordContainer result = wordIndex.get(p);  
+            if (result == null) {
+                result = new WordContainer(); 
+            }
+            
+
+            ArrayList<Document> results = result.get();     
+            
+            if (order) {
+                String arg = q[size -2]; 
+                boolean asc = true; 
+
+                if ("desc".equals(q[size - 1])) {
+                    asc = false;
+                }
+                Comparator cmp = new DocComparator(arg, result, asc);  
+                Collections.sort(results, cmp); 
+            }
+
+            return results;
         } 
         catch (NoSuchElementException e) {
             return null; 
@@ -302,7 +302,7 @@ class TinySearchEngine implements TinySearchEngineBase {
  
         private int popularity(Document doc1, Document doc2) {
 
-            int diff = wrd.popularity.get(doc1) - wrd.popularity.get(doc2);
+            int diff = doc1.popularity - doc2.popularity;
             diff = asc ? diff : -diff;
  
             if (diff < 0)
@@ -342,9 +342,7 @@ class TinySearchEngine implements TinySearchEngineBase {
     /* HELPER CLASS WordContainer:
      *
      * Holds a list of documents associated with a query. 
-     * Also holds a HashMap of Doubles (representing relevance) and
-     * a HashMap of Integers (representing popularity), with the documents
-     * as key. 
+     * Also holds a HashMap of Doubles (representing relevance) with the documents as key. 
      *
      * The actual relevance for each documents is calculated when getRelevance()
      * (or similar) is first called, and no sooner.  
@@ -358,21 +356,18 @@ class TinySearchEngine implements TinySearchEngineBase {
     private class WordContainer {
         public boolean initiated;
         public HashMap<Document, Double> relevance = new HashMap<Document, Double>(100);
-        public HashMap<Document, Integer> popularity = new HashMap<Document, Integer>(100); 
         public ArrayList<Document> documents = new ArrayList<Document>(100); 
  
         public WordContainer(Word word, Attributes attr) {
             initiated = false;
             Document doc = attr.document; 
             relevance.put(doc,1.0);
-            popularity.put(doc,doc.popularity); 
             documents.add(doc); 
         }
  
         public WordContainer( WordContainer wrd) {
             this.relevance = new HashMap<Document,Double>(wrd.relevance);
             this.documents = wrd.get(); 
-            this.popularity = new HashMap<Document,Integer>(wrd.popularity); 
             initiated = true;
         }
 
@@ -389,7 +384,6 @@ class TinySearchEngine implements TinySearchEngineBase {
 
             else {
                 relevance.put(doc,1.0);
-                popularity.put(doc,doc.popularity); 
                 documents.add(doc); 
             }
         }
@@ -418,7 +412,6 @@ class TinySearchEngine implements TinySearchEngineBase {
                 setRelevance(); 
             }
             relevance.put(doc, d);
-            popularity.put(doc, doc.popularity); 
             documents.add(doc); 
         }
 

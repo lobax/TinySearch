@@ -74,7 +74,6 @@ class TinySearchEngine implements TinySearchEngineBase {
 
     public void insert (Sentence sentence, Attributes attr) {
         for(Word word : sentence.getWords()) {
-            totalWords++;
             insert(word,attr); 
         }
     }
@@ -83,8 +82,6 @@ class TinySearchEngine implements TinySearchEngineBase {
         double numberOfDocuments = docWordCount.size(); 
         System.out.println("Number of documents: " + numberOfDocuments); 
 
-        System.out.println("Number of words in index: " + numberOfWords); 
-        System.out.println("Total number of words: " + totalWords); 
     }
 
     /**
@@ -165,7 +162,7 @@ class TinySearchEngine implements TinySearchEngineBase {
             }
 
             if (order) {
-                p = "Query: " + p + " " + arg.substring(orderby, arg.length()).toUpperCase(); 
+                p = p + " " + arg.substring(orderby, arg.length()).toUpperCase(); 
             }
 
             return p; 

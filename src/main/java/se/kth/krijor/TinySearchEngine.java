@@ -322,9 +322,8 @@ class TinySearchEngine implements TinySearchEngineBase {
                 return 1;
             else if (diff < 0)
                 return -1;
-            else {
-                    return 1;
-            }
+            else 
+                return 0;
         }
         public int compare(Document doc1, Document doc2) {
             if (arg.equals("popularity"))
@@ -395,7 +394,7 @@ class TinySearchEngine implements TinySearchEngineBase {
         /*
          * METHOD get():
          *
-         * Returns the ArrayList of DocContainer(s)
+         * Returns the ArrayList of Documents
          *
          * NOTE: This creates a shallow copy!
          */

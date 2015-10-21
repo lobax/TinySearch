@@ -56,5 +56,5 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="sun.cpu.isalist" value=""/>
   </properties>
-  <testcase time="0.003" classname="se.kth.krijor.AppTest" name="testApp"/>
+  <testcase time="0.004" classname="se.kth.krijor.AppTest" name="testApp"/>
 </testsuite>

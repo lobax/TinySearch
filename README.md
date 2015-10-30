@@ -1,7 +1,7 @@
 # TinySearch
 
 A simple search engine, made as a project for the course Algorithms and Data structures (ID1020).
-Search for a word, and it will list the documents that the searched term occurs in. It also supports
+Search for a word in the [Brow Corpus](https://en.wikipedia.org/wiki/Brown_Corpus), and it will list the documents that the searched term occurs in. It also supports
 some basic operations and orderings - see **Query Syntax** for more on the query language. 
 
 Full specifications for this project can be found at https://github.com/lobax/TinySearch/blob/master/id1020-proj2.pdf
